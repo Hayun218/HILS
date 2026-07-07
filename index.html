@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HILS 운영 문서함</title>
+<style>
+  :root{
+    --teal-dark:#123f3d;
+    --teal:#1a6b64;
+    --teal-soft:#e5f1ef;
+    --gold:#d9a441;
+    --ink:#20272a;
+    --muted:#6c7674;
+    --line:#e3e3dd;
+    --bg:#faf9f6;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;
+    line-height:1.6;
+  }
+  .display{ font-family:"Nanum Myeongjo","Batang","Noto Serif KR",serif; }
+  .topbar{ background:var(--teal-dark); color:#fff; }
+  .topbar-inner{
+    max-width:900px; margin:0 auto; padding:40px 24px 32px;
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  }
+  .crest{ width:56px; height:auto; flex-shrink:0; object-fit:contain; }
+  .topbar h1{ font-size:24px; margin:0 0 4px; font-weight:700; }
+  .topbar .sub{ font-size:13px; color:#bcd6d2; margin:0; }
+  .split-bar{
+    height:5px;
+    background:linear-gradient(135deg, var(--gold) 50%, var(--teal) 50%);
+    background-size: 24px 5px;
+  }
+  .wrap{ max-width:900px; margin:0 auto; padding:36px 24px 90px; }
+  .wrap h2{ font-size:17px; margin:0 0 18px; color:var(--muted); font-weight:700; }
+
+  a.card{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px 22px;
+    text-decoration:none;
+    color:inherit;
+    margin-bottom:14px;
+    transition:border-color 0.15s ease, transform 0.15s ease;
+  }
+  a.card:hover{ border-color:var(--teal); transform:translateY(-2px); }
+  a.card .left .tag{
+    display:inline-block;
+    font-size:10.5px; font-weight:700; letter-spacing:0.06em;
+    color:var(--teal); background:var(--teal-soft);
+    padding:3px 9px; border-radius:20px; margin-bottom:8px;
+  }
+  a.card .title{ font-family:"Nanum Myeongjo",serif; font-size:18px; font-weight:700; margin-bottom:4px; }
+  a.card .desc{ font-size:12.5px; color:var(--muted); }
+  a.card .arrow{ font-size:20px; color:var(--teal); flex-shrink:0; }
+
+  footer{
+    margin-top:40px; padding-top:20px; border-top:1px solid var(--line);
+    color:var(--muted); font-size:11.5px; text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <img class="crest" src="./hils-logo.png" alt="HILS 로고">
+    <div>
+      <h1 class="display">HILS 운영 문서함</h1>
+      <p class="sub">코디네이터 검토 자료 모음 · 박하윤</p>
+    </div>
+  </div>
+</div>
+<div class="split-bar"></div>
+
+<div class="wrap">
+  <h2>공유 문서 목록</h2>
+
+  <a class="card" href="./hils-teacher-workload-2026.html">
+    <div class="left">
+      <div class="tag">2026</div>
+      <div class="title">교사 업무 파악 현황</div>
+      <div class="desc">교사별 업무 내용과 주간 소요시간을 한눈에 정리한 대시보드</div>
+    </div>
+    <div class="arrow">→</div>
+  </a>
+
+  <footer>HILS 내부 검토용 · 2026</footer>
+</div>
+</body>
+</html>
