@@ -38,7 +38,7 @@
     max-width:1080px; margin:0 auto; padding:36px 24px 30px;
     display:flex; align-items:center; gap:18px; flex-wrap:wrap;
   }
-  .crest{ width:52px; height:60px; flex-shrink:0; }
+  .crest{ width:56px; height:auto; flex-shrink:0; object-fit:contain; }
   .topbar h1{
     font-size:24px; margin:0 0 4px; font-weight:700; letter-spacing:-0.01em;
   }
@@ -206,12 +206,7 @@
 
 <div class="topbar">
   <div class="topbar-inner">
-    <svg class="crest" viewBox="0 0 100 116" fill="none">
-      <path d="M4 8 Q4 4 8 4 H92 Q96 4 96 8 V60 C96 88 74 104 50 112 C26 104 4 88 4 60 Z" fill="#ffffff" fill-opacity="0.06" stroke="#e5f1ef" stroke-width="2.5"/>
-      <path d="M50 20 L50 96" stroke="#d9a441" stroke-width="1"/>
-      <path d="M50 20 v66 M38 40 v22 M62 40 v22 M32 52 v10 M68 52 v10 M26 58 v6 M74 58 v6" stroke="#e5f1ef" stroke-width="2.4" stroke-linecap="round"/>
-      <circle cx="50" cy="34" r="4" fill="#d9a441"/>
-    </svg>
+    <img class="crest" src="./hils-logo.png" alt="HILS 로고">
     <div>
       <h1 class="display">HILS 교사 업무 파악 현황</h1>
       <p class="sub">크리스천 대안교육기관 HILS · 2026년도 교사별 업무 및 소요시간 정리</p>
@@ -382,7 +377,7 @@ const people = [
     flag:"대학 온라인 과정 병행 중 — HILS 업무 외 개인 학업시간 별도 소요"
   },
   {
-    name:"Sherwin", role:"영어 전담 Supervisor (직책 없음)", type:"FT",
+    name:"Sherwin", role:"SOT Supervisor", type:"FT",
     summary:"SOT 시스템 관리, 학생 진도 관리(Curriculum coordinator), Grammar·Conversation 수업",
     tasks:[
       {cat:"Administration", task:"Administrator", desc:"SOT 시스템 관리, 문서·진단테스트 관리, SOP 제작", h:"1h", calc:1, note:"분기 초/말 신규제작 시 10~15h 추가"},
