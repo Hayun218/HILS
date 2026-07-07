@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HILS 교사 업무 파악 현황</title>
+<style>
+  :root{
+    --teal-dark:#123f3d;
+    --teal:#1a6b64;
+    --teal-soft:#e5f1ef;
+    --gold:#d9a441;
+    --gold-soft:#f8ecd2;
+    --ink:#20272a;
+    --muted:#6c7674;
+    --line:#e3e3dd;
+    --bg:#faf9f6;
+    --card:#ffffff;
+    --pt:#c97a35;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;
+    line-height:1.6;
+  }
+  .display{ font-family:"Nanum Myeongjo","Batang","Noto Serif KR",serif; }
+  .wrap{ max-width:1080px; margin:0 auto; padding:0 24px 100px; }
+
+  /* ---------- Header ---------- */
+  .topbar{
+    background:var(--teal-dark);
+    color:#fff;
+  }
+  .topbar-inner{
+    max-width:1080px; margin:0 auto; padding:36px 24px 30px;
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  }
+  .crest{ width:52px; height:60px; flex-shrink:0; }
+  .topbar h1{
+    font-size:24px; margin:0 0 4px; font-weight:700; letter-spacing:-0.01em;
+  }
+  .topbar .sub{ font-size:13px; color:#bcd6d2; margin:0; }
+  .split-bar{
+    height:5px;
+    background:linear-gradient(135deg, var(--gold) 50%, var(--teal) 50%);
+    background-size: 24px 5px;
+  }
+
+  .page-meta{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:22px 0 6px; flex-wrap:wrap; gap:10px;
+  }
+  .page-meta h2{ font-size:20px; margin:0; font-weight:700; }
+  .page-meta .date{ font-size:12px; color:var(--muted); }
+
+  /* ---------- Summary stat cards ---------- */
+  .stats{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+    margin:22px 0 34px;
+    max-width:260px;
+  }
+  .stat-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:18px 18px 16px;
+  }
+  .stat-card .label{ font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; font-weight:600;}
+  .stat-card .value{ font-size:26px; font-weight:700; font-family:"Nanum Myeongjo",serif; color:var(--teal-dark); }
+  .stat-card .value span{ font-size:14px; font-weight:600; color:var(--muted); margin-left:4px; }
+  .stat-card .foot{ font-size:11.5px; color:var(--muted); margin-top:6px; }
+
+  /* ---------- Overview bars ---------- */
+  .section-title{
+    display:flex; align-items:center; gap:10px; margin:38px 0 16px;
+  }
+  .section-title .tag{
+    font-size:10.5px; font-weight:700; letter-spacing:0.08em;
+    color:var(--teal); background:var(--teal-soft);
+    padding:3px 9px; border-radius:20px;
+  }
+  .section-title h3{ font-size:17px; margin:0; font-weight:700; }
+  .section-title .line{ flex:1; height:1px; background:var(--line); }
+
+  .overview{
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:22px 24px 10px;
+  }
+  .ov-row{
+    display:grid;
+    grid-template-columns:110px 1fr auto;
+    align-items:center;
+    gap:16px;
+    padding:13px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .ov-row:last-child{ border-bottom:none; }
+  .ov-row .who{ font-size:13.5px; font-weight:700; display:flex; align-items:center; gap:6px; }
+  .ov-row .type-dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .ov-row .main-task{ font-size:13px; color:var(--ink); }
+  .ov-row .main-task .task-hrs{ color:var(--muted); font-weight:600; margin-left:6px; }
+  .ov-row .total-hrs{ font-size:12.5px; font-weight:700; color:var(--teal-dark); text-align:right; white-space:nowrap; }
+  .ov-row .total-hrs .lbl{ display:block; font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; }
+  .legend{ display:flex; gap:18px; font-size:11.5px; color:var(--muted); padding:8px 2px 16px; }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .legend .dot{ width:8px; height:8px; border-radius:50%; }
+
+  /* ---------- Detail accordions ---------- */
+  details.person{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    margin-bottom:12px;
+    overflow:hidden;
+  }
+  details.person > summary{
+    list-style:none;
+    cursor:pointer;
+    padding:18px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  details.person > summary::-webkit-details-marker{ display:none; }
+  .sum-left{ display:flex; align-items:center; gap:12px; }
+  .sum-left .name{ font-family:"Nanum Myeongjo",serif; font-size:17px; font-weight:700; }
+  .sum-left .role{ font-size:12px; color:var(--muted); }
+  .type-badge{
+    font-size:10px; font-weight:700; letter-spacing:0.04em;
+    padding:3px 9px; border-radius:20px;
+  }
+  .type-badge.ft{ background:var(--teal-soft); color:var(--teal); }
+  .type-badge.pt{ background:var(--gold-soft); color:var(--pt); }
+  .sum-right{ display:flex; align-items:center; gap:14px; }
+  .sum-right .total{ font-size:16px; font-weight:700; color:var(--teal-dark); }
+  .chevron{ transition:transform 0.2s ease; color:var(--muted); }
+  details[open] .chevron{ transform:rotate(180deg); }
+
+  .person-note{
+    margin:0 22px 14px;
+    padding:10px 14px;
+    background:var(--gold-soft);
+    border-left:3px solid var(--gold);
+    border-radius:0 8px 8px 0;
+    font-size:12px;
+    color:#7a5417;
+  }
+
+  .task-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12.8px;
+  }
+  .task-table th{
+    text-align:left;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--muted);
+    padding:8px 10px;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    background:var(--bg);
+  }
+  .task-table td{
+    padding:10px 10px;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  .task-table tr:last-child td{ border-bottom:none; }
+  .task-table .cat{
+    font-size:11px; font-weight:700; color:var(--teal);
+    white-space:nowrap;
+  }
+  .task-table .task-name{ font-weight:600; }
+  .task-table .desc{ color:var(--muted); font-size:12px; }
+  .task-table .hrs{ white-space:nowrap; font-weight:700; text-align:right; }
+  .task-table .note{ color:var(--pt); font-size:11px; }
+  tfoot td{
+    padding:12px 10px;
+    font-weight:700;
+    border-top:2px solid var(--teal);
+    background:var(--teal-soft);
+  }
+  tfoot .subtotal-label{ color:var(--teal-dark); }
+  tfoot .subtotal-val{ text-align:right; color:var(--teal-dark); }
+
+  footer{
+    margin-top:50px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:11.5px;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <svg class="crest" viewBox="0 0 100 116" fill="none">
+      <path d="M4 8 Q4 4 8 4 H92 Q96 4 96 8 V60 C96 88 74 104 50 112 C26 104 4 88 4 60 Z" fill="#ffffff" fill-opacity="0.06" stroke="#e5f1ef" stroke-width="2.5"/>
+      <path d="M50 20 L50 96" stroke="#d9a441" stroke-width="1"/>
+      <path d="M50 20 v66 M38 40 v22 M62 40 v22 M32 52 v10 M68 52 v10 M26 58 v6 M74 58 v6" stroke="#e5f1ef" stroke-width="2.4" stroke-linecap="round"/>
+      <circle cx="50" cy="34" r="4" fill="#d9a441"/>
+    </svg>
+    <div>
+      <h1 class="display">HILS 교사 업무 파악 현황</h1>
+      <p class="sub">크리스천 대안교육기관 HILS · 2026년도 교사별 업무 및 소요시간 정리</p>
+    </div>
+  </div>
+</div>
+<div class="split-bar"></div>
+
+<div class="wrap">
+
+  <div class="page-meta">
+    <h2>학교 전체 한눈에 보기</h2>
+    <div class="date">기준일 2026.07.07 · 교사 업무파악표 기준</div>
+  </div>
+
+  <div class="stats" id="stat-cards"></div>
+
+  <div class="section-title">
+    <div class="tag">OVERVIEW</div>
+    <h3>인원별 메인 과업 및 소요시간</h3>
+    <div class="line"></div>
+  </div>
+  <div class="overview">
+    <div id="ov-rows"></div>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--teal)"></span> 풀타임</span>
+    <span><span class="dot" style="background:var(--gold)"></span> 파트타임</span>
+  </div>
+
+  <div class="section-title">
+    <div class="tag">DETAIL</div>
+    <h3>인원별 세부 업무 내역 (클릭하여 펼치기)</h3>
+    <div class="line"></div>
+  </div>
+  <div id="person-list"></div>
+
+  <div class="section-title">
+    <div class="tag">별도</div>
+    <h3>코디네이터 (본업 병행)</h3>
+    <div class="line"></div>
+  </div>
+  <div id="coordinator-block"></div>
+
+  <footer>HILS 내부 검토용 · 2026 HILS Coordinator's Review · 작성 박하윤</footer>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const coordinator = {
+    name:"박하윤", role:"코디네이터 · 파트타임(본업 병행)", type:"PT",
+    summary:"행정 체계 구축, 부서 간 소통 및 회의 조율",
+    tasks:[
+      {cat:"행정", task:"행정 체계 구축", desc:"업무 구조화 및 담당자 전달 · 문서 초안 작성 · 전달업무 트래킹 & 피드백", h:"8h", calc:8},
+      {cat:"소통", task:"중간 소통책 (목사님-교사)", desc:"목사님 지시사항 전달", h:"1h", calc:1, note:"교회 지시사항 포함"},
+      {cat:"소통", task:"교사회의", desc:"실무 회의 참석", h:"1.5h", calc:1.5},
+    ],
+    flag:"본업을 병행하며 코디네이터 업무를 수행 — 전체 인원·통계에서 별도로 표기"
+};
+
+const people = [
+  {
+    name:"홍성수", role:"교과목 교사 및 총괄", type:"FT",
+    summary:"학교 총괄 행정, 입시반 학습관리(수능·검정고시·생기부), 초등 수학·중고등 과학/토론 수업",
+    tasks:[
+      {cat:"교과/수업", task:"초등 수학 교과 운영", desc:"화·수·금 수학수업, 학생 1:1 코칭 및 지도(채점포함)", h:"5h", calc:5, note:"수업준비 포함"},
+      {cat:"교과/수업", task:"중고등 과학 교과 운영", desc:"수·목 과학수업, 강의식 학습지도", h:"4h", calc:4, note:"수업준비 포함"},
+      {cat:"교과/수업", task:"중고등 토론 교과 운영", desc:"화요일 토론수업, 주제 제시 및 진행", h:"1.5h", calc:1.5, note:"준비 포함"},
+      {cat:"행정", task:"여학생 예치금 관리", desc:"초중고 여학생 예치금 관리 및 학부모 공지", h:"1h", calc:1},
+      {cat:"행정", task:"전체 학교 총괄", desc:"전반적인 학교 행정 총괄", h:"8h", calc:8},
+      {cat:"행정", task:"사회적협동조합 설립", desc:"서류 준비 및 설립 신청", h:"2h", calc:2, note:"법인등기 준비 필요 · 8월까지 완료 예정"},
+      {cat:"행정", task:"쉘인 비자 준비", desc:"비자 서류 준비 및 소통", h:"2h", calc:2},
+      {cat:"행정", task:"입시 준비", desc:"수능·검정고시 등 입시반 학습관리, 생기부 작성", h:"8h", calc:8},
+      {cat:"소통", task:"학부모 소통", desc:"학사일정 공유, 주요 공지사항 및 행사 공지", h:"0.5h", calc:0.5},
+      {cat:"소통", task:"교사 실무회의", desc:"참석 및 진행", h:"1.5h", calc:1.5},
+      {cat:"생활", task:"등교 차량운행", desc:"쉘인·신하율·하음·하온 등교", h:"1h", calc:1},
+      {cat:"생활", task:"선포기도 및 임묵 진행", desc:"매일 아침 진행", h:"4.5h", calc:4.5},
+      {cat:"생활", task:"금요일 저녁당번", desc:"학생 저녁 준비", h:"1h", calc:1},
+    ],
+    flag:"스쿨 총괄과 입시반 학습관리를 함께 겸임"
+  },
+  {
+    name:"최하림", role:"행정, 회계, 교과", type:"FT",
+    summary:"교육청 연계사업, 회계, 월별 행사 진행, 글로벌캠퍼스 기획",
+    tasks:[
+      {cat:"행정", task:"교육청 연계사업", desc:"이메일 확인·전달, 현장체험학습·우수프로그램 기획, 급식비지원 행정, 업무분담", h:"10h", calc:10},
+      {cat:"행정", task:"회계", desc:"영수증 정리, 이카운트 정리, 물품 구매", h:"6h", calc:6},
+      {cat:"행정", task:"행사 진행", desc:"월별 행사에 따른 진행", h:"4h", calc:4, note:"성경암송컨테스트, 생일파티 등"},
+      {cat:"행정", task:"글로벌 캠퍼스", desc:"기획 및 예산 작성", h:"4h", calc:4},
+      {cat:"교과/수업", task:"아니스트 수업", desc:"국어 토론, 사회, 과학 수업 진행", h:"4h", calc:4, note:"수업준비 포함"},
+      {cat:"생활", task:"식사준비", desc:"장보기(주1회), 식사준비(주1회)", h:"2.5h", calc:2.5},
+      {cat:"생활", task:"차량운행", desc:"아침(주1회), 하교(주1회)", h:"2h", calc:2},
+      {cat:"생활", task:"기숙사 생활지도", desc:"생활 관리·상담, 청소당번 검사, 취침지도", h:"3h", calc:3},
+      {cat:"소통", task:"교사 회의", desc:"실무 회의 참석", h:"1.5h", calc:1.5},
+      {cat:"소통", task:"업무 보조", desc:"교회 관련 업무 및 공동 업무 지원", h:"3h", calc:3},
+    ]
+  },
+  {
+    name:"윤소연", role:"교과목 교사", type:"FT",
+    summary:"중고등 수학 수업 운영, 자기주도학습 시스템 구축 및 교재 개발",
+    tasks:[
+      {cat:"교과/수업", task:"중고등 수학 교과 수업 운영", desc:"학생별 목표관리, 1:1 코칭 및 지도(채점포함), 주2회 야자 보충수업", h:"18.5h", calc:18.5},
+      {cat:"교육과정/연구", task:"자기주도학습 시스템 구축 및 콘텐츠 개발", desc:"맞춤 커리큘럼 구상, 교재선정, 개념학습지·부교재·단원평가 제작", h:"12h", calc:12},
+      {cat:"행정", task:"교과 외 과목 행정", desc:"학습자료 조사·제작, 평가문항 개발, 성적분석, 시상운영", h:"비정기", calc:0, note:"때마다 변동 — 예: 한반도/세계지도 총 10h(3/23~5/1)"},
+      {cat:"행정", task:"진도 및 보상 관리", desc:"진도표 관리, 평가결과 기록, 자료출력, 메릿 제공", h:"6.5h", calc:6.5, note:"학습진도보고서(쿼터별) 8~9h, 메릿마켓 준비(쿼터별) 1h 별도"},
+      {cat:"행정", task:"학생 동기부여 및 보상제도 운영", desc:"목표 설정·달성 점검, 생활태도 감독, MVP 자료 제작", h:"1h", calc:1},
+      {cat:"행정", task:"행정보조", desc:"시간표·청소표·목표달성표 제작(3h), 교육청 공모전 참여(주1h)", h:"4h", calc:4, note:"공모전 ~26.8.12까지"},
+      {cat:"생활", task:"기숙사 생활지도", desc:"공동체 생활지도(청소·생활규정 관리)", h:"수시", calc:0},
+      {cat:"생활", task:"청소 감독", desc:"수/금 2층 청소 감독", h:"0.5h", calc:0.5},
+      {cat:"소통", task:"교사회의", desc:"실무 회의", h:"1.5h", calc:1.5, note:"실제 12:40~15:00(2h20m)"},
+    ],
+    flag:"수업(18.5h)과 커리큘럼 개발(12h)을 함께 담당"
+  },
+  {
+    name:"김성결", role:"영어 교과 담당", type:"FT",
+    summary:"중/고등 영문법·독해 수업, SOT 영어학습 코칭, 남학생 기숙사 생활지도",
+    tasks:[
+      {cat:"교과/수업", task:"중/고등 영문법 및 독해수업", desc:"수·금 중등 영문법, 목·금 고등 영문법·독해 코칭", h:"6h", calc:6},
+      {cat:"교과/수업", task:"중/고등 SOT 영어 학습", desc:"매일 오전 자기주도적 영어학습 코칭", h:"10h", calc:10},
+      {cat:"교과/수업", task:"중/고등 영어단어 학습", desc:"매주 화·금 영단어 암기 및 시험 진행", h:"1h", calc:1},
+      {cat:"소통", task:"교사 실무회의", desc:"참석", h:"1.5h", calc:1.5},
+      {cat:"생활", task:"등하교 차량운행", desc:"매주 수요일 등교, 필요시 하교", h:"1~2h", calc:1.5},
+      {cat:"생활", task:"기숙사 생활지도", desc:"남학생 기숙사 생활 지도 및 관리", h:"6h", calc:6, note:"매일 일과 후"},
+      {cat:"생활", task:"임재적 묵상 진행", desc:"매일 오전 묵상 및 선포기도 진행", h:"4.5h", calc:4.5},
+      {cat:"생활", task:"저녁 식사 준비", desc:"매주 수요일", h:"2h", calc:2},
+      {cat:"행정", task:"SOT 학생부 기록", desc:"쿼터별 성적·학습내용 기록, 교재 구매·정리", h:"2h", calc:2},
+    ],
+    flag:"R&R 공식역할은 「입시 및 학생관리」이나, 실제 업무에 입시 관련 항목 없음"
+  },
+  {
+    name:"김대기", role:"수학 교과 교사", type:"FT",
+    summary:"중고등 수학 수업, 생활지도 보조 (교회 총괄 겸임 중)",
+    tasks:[
+      {cat:"교과/수업", task:"중고등 수학 수업", desc:"학습환경 관리·감독, 수학 학습지도 및 질의응답", h:"12h", calc:12},
+      {cat:"생활", task:"저녁 식사 준비", desc:"목요일 저녁 준비", h:"1h", calc:1},
+      {cat:"생활", task:"차량운행", desc:"금요일 아침 운행", h:"1h", calc:1},
+      {cat:"소통", task:"예배자학교 소통", desc:"장태환 목사님과 소통, 수업 회차 관리", h:"0.2h", calc:0.2},
+      {cat:"소통", task:"교사 회의", desc:"참석", h:"1.5h", calc:1.5},
+    ],
+    flag:"교회 총괄 겸임 중 — HILS 내 업무시간 축소 방향으로 논의됨"
+  },
+  {
+    name:"김성영", role:"영어 교과 교사 · 파트타임", type:"PT",
+    summary:"초등 SOT 영어수업 운영, 쉐도잉·파닉스 지도, 기숙사 생활지도",
+    tasks:[
+      {cat:"교과/수업", task:"초등 SOT 영어수업 운영 및 진도 점검", desc:"일일 Goal 체크, 데일리 리포트 작성, 질의응답", h:"10h", calc:10, note:"학습진도보고서 쿼터별 5~6h 별도"},
+      {cat:"교과/수업", task:"초등 영어 쉐도잉 수업", desc:"주1회, 스누피 영상자료, 발음·억양 교정, Skit 활동", h:"1.5h", calc:1.5},
+      {cat:"교과/수업", task:"파닉스 학습 개별지도(하온)", desc:"주2회, 낱말카드·시각자료, 발음 교정", h:"2h", calc:2},
+      {cat:"수업자료 준비", task:"초등-고등 SOT 자료 준비", desc:"PT 채점, 교재 출력, 스티커 지급", h:"이관됨", calc:0, note:"2026.6.18부로 Sherwin에게 업무 이관"},
+      {cat:"행정", task:"SOT 보상관리", desc:"메릿포인트 제작, 메릿마켓 기획·운영", h:"비정기", calc:0, note:"제작 5~6h(비정기), 마켓 쿼터별 약 3h"},
+      {cat:"생활", task:"식사 준비", desc:"주1회", h:"1h", calc:1},
+      {cat:"생활", task:"기숙사 생활지도", desc:"생활 관리·상담, 청소당번 검사, 취침지도", h:"3h", calc:3},
+      {cat:"소통", task:"교사 회의", desc:"실무 회의", h:"1.5h", calc:1.5},
+    ],
+    flag:"파트타임 — 6/18 자료준비 업무 이관으로 부담 다소 감소, 계약시간 대비 재확인 필요"
+  },
+  {
+    name:"이예랑", role:"TA · 파트타임", type:"PT",
+    summary:"수학 교과 1:1 코칭 및 오답지도, 급식 조리 지원, 기숙사 생활지도",
+    tasks:[
+      {cat:"교과/수업", task:"수학 교과 수업", desc:"학생별 1:1 코칭 및 오답 지도(채점포함)", h:"11.5h", calc:11.5},
+      {cat:"교과/수업", task:"임재적묵상 운영", desc:"월요일 임재적 묵상 운영·감독", h:"1h", calc:1},
+      {cat:"생활", task:"급식 조리", desc:"급식용 밥 조리", h:"0.15h", calc:0.15},
+      {cat:"생활", task:"급식 조리", desc:"화/수요일 저녁 급식 요리 지원", h:"2h", calc:2},
+      {cat:"생활", task:"식자재 구입", desc:"화요일 식자재 구매 및 운반 지원", h:"0.5~1h", calc:0.75},
+      {cat:"생활", task:"기숙사 생활지도", desc:"기숙사 취침시간 점검 및 독려", h:"0.6h", calc:0.6},
+    ],
+    flag:"대학 온라인 과정 병행 중 — HILS 업무 외 개인 학업시간 별도 소요"
+  },
+  {
+    name:"Sherwin", role:"영어 전담 Supervisor (직책 없음)", type:"FT",
+    summary:"SOT 시스템 관리, 학생 진도 관리(Curriculum coordinator), Grammar·Conversation 수업",
+    tasks:[
+      {cat:"Administration", task:"Administrator", desc:"SOT 시스템 관리, 문서·진단테스트 관리, SOP 제작", h:"1h", calc:1, note:"분기 초/말 신규제작 시 10~15h 추가"},
+      {cat:"Classes", task:"Head Supervisor", desc:"학생 진도 관리, 슈퍼바이저 관리, 주간보고", h:"3h", calc:3},
+      {cat:"Administration", task:"Merit points manager", desc:"메릿 정책 설계·관리", h:"0.5h", calc:0.5, note:"신규 제작 5~6h, 마켓 1h 비정기"},
+      {cat:"Lifestyle", task:"SOT Devotion", desc:"묵상 준비 및 진행", h:"2~4h", calc:3},
+      {cat:"Classes", task:"Supervisor (Curriculum coordinator)", desc:"학생 목표 체크, PACE 채점, 학생부 기록", h:"10h", calc:10},
+      {cat:"Classes", task:"Conversation class teacher (Honest)", desc:"커리큘럼 설계, 자료조사, 수업 진행", h:"3h", calc:3, note:"추가 자료조사 1h(필요시)"},
+      {cat:"Classes", task:"SOT Grammar teacher (Dream&Calling)", desc:"커리큘럼 설계, 평가 제작·채점", h:"3h", calc:3, note:"추가 자료조사 1h(필요시)"},
+      {cat:"Communication", task:"Teachers' meeting", desc:"참석", h:"1.5h", calc:1.5, note:"실제 소요 약 3시간"},
+      {cat:"수업자료 준비", task:"초등-고등 SOT 자료 준비 (이관)", desc:"김성영으로부터 이관받은 업무", h:"2~4h", calc:3, note:"2026.6.18부터 담당"},
+    ],
+    flag:"별도 직책은 없으나 영어(SOT) 영역 전담 · 분기 초/말 집중 업무(+10~15h) 시 부담 급증"
+  },
+];
+
+/* ================= RENDER ================= */
+function subtotal(p){ return p.tasks.reduce((s,t)=>s+t.calc,0); }
+const totals = people.map(p=>({name:p.name, type:p.type, total:subtotal(p)}));
+const grandTotal = totals.reduce((s,t)=>s+t.total,0);
+const ftCount = people.filter(p=>p.type==="FT").length;
+const ptCount = people.filter(p=>p.type==="PT").length;
+
+document.getElementById('stat-cards').innerHTML = `
+  <div class="stat-card">
+    <div class="label">전체 인원</div>
+    <div class="value">${people.length}<span>명</span></div>
+    <div class="foot">풀타임 ${ftCount}명 · 파트타임 ${ptCount}명</div>
+  </div>
+`;
+
+function mainTask(p){
+  return p.tasks.reduce((a,b)=> b.calc>a.calc?b:a, p.tasks[0]);
+}
+
+const displayOrder = ["홍성수","최하림","윤소연","김성결","김대기","Sherwin","김성영","이예랑"];
+const peopleSorted = displayOrder.map(n => people.find(p=>p.name===n)).filter(Boolean);
+
+document.getElementById('ov-rows').innerHTML = peopleSorted.map(p=>{
+  const color = p.type==="FT" ? "var(--teal)" : "var(--gold)";
+  const sub = subtotal(p);
+  return `
+  <div class="ov-row">
+    <div class="who"><span class="type-dot" style="background:${color}"></span>${p.name}</div>
+    <div class="main-task">${p.summary}</div>
+    <div class="total-hrs"><span class="lbl">주간 총계</span>${sub.toFixed(1)}h</div>
+  </div>`;
+}).join("");
+
+document.getElementById('person-list').innerHTML = peopleSorted.map(p=>{
+  const sub = subtotal(p);
+  const sortedTasks = [...p.tasks].sort((a,b)=> b.calc-a.calc);
+  const rows = sortedTasks.map(t=>`
+    <tr>
+      <td class="cat">${t.cat}</td>
+      <td class="task-name">${t.task}</td>
+      <td class="desc">${t.desc}</td>
+      <td class="hrs">${t.h}</td>
+      <td class="note">${t.note ? t.note : ""}</td>
+    </tr>
+  `).join("");
+  return `
+  <details class="person">
+    <summary>
+      <div class="sum-left">
+        <span class="type-badge ${p.type.toLowerCase()}">${p.type==="FT" ? "풀타임" : "파트타임"}</span>
+        <span class="name">${p.name}</span>
+        <span class="role">${p.role}</span>
+      </div>
+      <div class="sum-right">
+        <span class="total">${sub.toFixed(1)}h / 주</span>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </summary>
+    ${p.flag ? `<div class="person-note">${p.flag}</div>` : ""}
+    <table class="task-table">
+      <thead>
+        <tr><th>카테고리</th><th>업무</th><th>세부 설명</th><th style="text-align:right">시간</th><th>비고</th></tr>
+      </thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" class="subtotal-label">주간 소계</td>
+          <td class="subtotal-val">${sub.toFixed(1)}h</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </details>`;
+}).join("");
+document.getElementById('coordinator-block').innerHTML = (function(p){
+  const sub = subtotal(p);
+  const sortedTasks = [...p.tasks].sort((a,b)=> b.calc-a.calc);
+  const rows = sortedTasks.map(t=>`
+    <tr>
+      <td class="cat">${t.cat}</td>
+      <td class="task-name">${t.task}</td>
+      <td class="desc">${t.desc}</td>
+      <td class="hrs">${t.h}</td>
+      <td class="note">${t.note ? t.note : ""}</td>
+    </tr>
+  `).join("");
+  return `
+  <details class="person">
+    <summary>
+      <div class="sum-left">
+        <span class="type-badge pt">파트타임</span>
+        <span class="name">${p.name}</span>
+        <span class="role">${p.role}</span>
+      </div>
+      <div class="sum-right">
+        <span class="total">${sub.toFixed(1)}h / 주</span>
+        <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </summary>
+    <div class="person-note">${p.flag}</div>
+    <table class="task-table">
+      <thead>
+        <tr><th>카테고리</th><th>업무</th><th>세부 설명</th><th style="text-align:right">시간</th><th>비고</th></tr>
+      </thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" class="subtotal-label">주간 소계</td>
+          <td class="subtotal-val">${sub.toFixed(1)}h</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </details>`;
+})(coordinator);
+</script>
+</body>
+</html>
